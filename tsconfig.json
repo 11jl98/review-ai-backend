@@ -1,0 +1,17 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "Commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  }
+}
