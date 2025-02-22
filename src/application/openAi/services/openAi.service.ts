@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import OpenAI from "openai";
-import { OpenAIServiceInterface } from "./interfaces/apoenai.service.interface";
+import { OpenAIServiceInterface } from "./interfaces/apoenai.service.interface.js";
 
 @injectable()
 export class OpenAIService implements OpenAIServiceInterface {
