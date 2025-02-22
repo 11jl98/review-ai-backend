@@ -4,6 +4,7 @@ import { InversifyExpressServer } from "inversify-express-utils";
 import express from "express";
 import { AppInterface } from "./interfaces/app.interface.js";
 import { container } from "../infra/ioc/container.js";
+import { env } from "../infra/env/index.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
@@ -18,8 +19,12 @@ export class App implements AppInterface {
 
   public start(): void {
     const app = this.server.build();
-    app.listen(3000, () =>
-      console.log("🚀 Server running on port 3000" + process.env.OPENAI_API_KEY)
+    app.listen(
+      {
+        port: env.PORT,
+        host: env.HOST,
+      },
+      () => console.log(`🚀 Server running on port ${env.PORT}`)
     );
   }
 }

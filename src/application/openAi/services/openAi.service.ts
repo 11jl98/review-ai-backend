@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import OpenAI from "openai";
 import { OpenAIServiceInterface } from "./interfaces/apoenai.service.interface.js";
+import { env } from "../../../infra/env/index.js";
 
 @injectable()
 export class OpenAIService implements OpenAIServiceInterface {
@@ -8,7 +9,7 @@ export class OpenAIService implements OpenAIServiceInterface {
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: "",
+      apiKey: env.OPENAI_API_KEY,
     });
   }
 

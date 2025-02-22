@@ -4,6 +4,7 @@ import { Octokit } from "@octokit/rest";
 import { GitHubServiceInterface } from "./interfaces/github.service.interface.js";
 import { OpenAIService } from "../../openai/services/openai.service.js";
 import { TYPES } from "src/infra/ioc/types.js";
+import { env } from "../../../infra/env/index.js";
 
 @injectable()
 export class GitHubService implements GitHubServiceInterface {
@@ -12,7 +13,7 @@ export class GitHubService implements GitHubServiceInterface {
   constructor(
     @inject(TYPES.Services.OpenAIService) private openAIService: OpenAIService
   ) {
-    this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    this.octokit = new Octokit({ auth: env.GITHUB_TOKEN });
   }
 
   public async processPullRequest(
