@@ -1,17 +1,20 @@
 import "reflect-metadata";
+import "dotenv";
 import { InversifyExpressServer } from "inversify-express-utils";
-import { container} from '../container/container'
-import * as dotenv from "dotenv";
-
+import { container } from "../container/container.js";
+import express from "express";
 export class App {
   private server: InversifyExpressServer;
 
   constructor() {
     this.server = new InversifyExpressServer(container);
+    this.server.setConfig((app) => {
+      app.use(express.json());
+      app.use(express.urlencoded({ extended: true }));
+    });
   }
 
   public start(): void {
-    dotenv.config();
     const app = this.server.build();
     app.listen(3000, () => console.log("🚀 Server running on port 3000"));
   }

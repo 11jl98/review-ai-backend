@@ -1,21 +1,34 @@
 import { injectable } from "inversify";
-import axios from "axios";
+import OpenAI from "openai";
 
 @injectable()
 export class OpenAIService {
-  async analyzeCode(code: string): Promise<string> {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4-turbo",
-        messages: [
-          { role: "system", content: "You are a senior developer and need to perform a code review. Please provide feedback on best practices and potential improvements based on clean code, solid code and even clean architecture." },
-          { role: "user", content: code },
-        ],
-      },
-      { headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` } }
-    );
+  private openai: OpenAI;
 
-    return response.data.choices[0].message.content;
+  constructor() {
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+
+  async analyzeCode(code: string): Promise<string> {
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a senior developer and need to perform a code review. Please provide feedback on best practices and potential improvements based on clean code, solid code and even clean architecture.",
+          },
+          { role: "user", content: code.substring(0, 10000) },
+        ],
+      });
+
+      return response.choices[0]?.message?.content || "No response from AI";
+    } catch (error: any) {
+      console.error("❌ Erro ao chamar OpenAI:", error);
+      return `Não foi possível processar o PR`;
+    }
   }
 }

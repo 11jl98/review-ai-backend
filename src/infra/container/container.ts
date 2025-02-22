@@ -1,7 +1,7 @@
 import { Container } from "inversify";
-import { GitHubService } from "../../application/github/services/github.services";
-import { OpenAIService } from "../../application/openAi/services/openAi.service";
-import { WebhookController } from "../controllers/webhook/webhook.controller";
+import { GitHubService } from "../../application/github/services/github.services.js";
+import { OpenAIService } from "../../application/openAi/services/openAi.service.js";
+import { WebhookController } from "../controllers/webhook/webhook.controller.js";
 
 const container = new Container();
 

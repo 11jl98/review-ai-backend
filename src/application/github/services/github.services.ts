@@ -1,4 +1,5 @@
-import { injectable } from "inversify";
+import "dotenv/config";
+import { inject, injectable } from "inversify";
 import { Octokit } from "@octokit/rest";
 import axios from "axios";
 import { OpenAIService } from "../../openAi/services/openAi.service.js";
@@ -7,7 +8,7 @@ import { OpenAIService } from "../../openAi/services/openAi.service.js";
 export class GitHubService {
   private octokit: Octokit;
 
-  constructor(private openAIService: OpenAIService) {
+  constructor(@inject(OpenAIService) private openAIService: OpenAIService) {
     this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   }
 
@@ -16,25 +17,49 @@ export class GitHubService {
     repo: string,
     pullNumber: number
   ): Promise<string> {
-    const files = await this.octokit.pulls.listFiles({
-      owner,
-      repo,
-      pull_number: pullNumber,
-    });
+    try {
+      const files = await this.octokit.pulls.listFiles({
+        owner,
+        repo,
+        pull_number: pullNumber,
+      });
 
-    let codeChanges = "";
-    for (const file of files.data) {
-      if (file.filename.endsWith(".js") || file.filename.endsWith(".ts")) {
-        const content = await axios.get(file.raw_url);
-        codeChanges += `\nFile: ${file.filename}\n${content.data}\n`;
+      let codeChanges = "";
+      for (const file of files.data) {
+        if (file.filename.endsWith(".js") || file.filename.endsWith(".ts")) {
+          try {
+            const contentResponse = await this.octokit.repos.getContent({
+              owner,
+              repo,
+              path: file.filename,
+              ref: `refs/pull/${pullNumber}/head`,
+            });
+
+            if ("content" in contentResponse.data) {
+              const decodedContent = Buffer.from(
+                contentResponse.data.content,
+                "base64"
+              ).toString("utf-8");
+              codeChanges += `\nFile: ${file.filename}\n${decodedContent}\n`;
+            }
+          } catch (contentError: any) {
+            console.warn(
+              `⚠️ Erro ao buscar conteúdo do arquivo ${file.filename}:`,
+              contentError.message
+            );
+          }
+        }
       }
-    }
 
-    if (!codeChanges) {
-      return "No code changes detected.";
-    }
+      if (!codeChanges) {
+        return "No code changes detected.";
+      }
 
-    return await this.openAIService.analyzeCode(codeChanges);
+      return await this.openAIService.analyzeCode(codeChanges);
+    } catch (error: any) {
+      console.error("❌ Erro ao processar PR:", error);
+      return `Não foi possível processar o PR`;
+    }
   }
 
   async commentOnPR(
