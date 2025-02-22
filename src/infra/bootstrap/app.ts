@@ -1,9 +1,10 @@
 import "reflect-metadata";
 import { InversifyExpressServer } from "inversify-express-utils";
-import { container} from '../container/container'
 import * as dotenv from "dotenv";
+import { container } from "../ioc/container/container";
+import { AppInterface } from "./interfaces/app.interface";
 
-export class App {
+export class App implements AppInterface {
   private server: InversifyExpressServer;
 
   constructor() {

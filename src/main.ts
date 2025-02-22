@@ -1,4 +1,4 @@
-import { App } from "./infra/bootstrap/server-build";
+import { App } from "./infra/bootstrap/app";
 
 const app = new App();
 app.start();

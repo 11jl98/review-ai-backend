@@ -8,7 +8,7 @@ export class WebhookController {
   constructor(@inject(GitHubService) private githubService: GitHubService) {}
 
   @httpPost("/")
-  public async handleWebhook(
+  public async handle(
     @requestBody() body: any,
     req: Request,
     res: Response
