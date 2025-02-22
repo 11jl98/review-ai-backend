@@ -6,4 +6,5 @@ export const TYPES = {
     GitHubService: Symbol.for("GitHubService"),
     OpenAIService: Symbol.for("OpenAIService"),
   },
+  Queue: Symbol.for("Queue"),
 };
