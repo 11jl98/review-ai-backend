@@ -8,7 +8,7 @@ export class OpenAIService implements OpenAIServiceInterface {
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: "",
     });
   }
 

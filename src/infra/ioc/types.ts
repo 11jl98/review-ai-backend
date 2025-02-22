@@ -1,9 +1,9 @@
 export const TYPES = {
-    Controllers:{
-        webHooks: Symbol.for("WebHooksController"),
-    },
-    Services:{
-        GitHubService: Symbol.for("GitHubService"),
-        OpenAIService: Symbol.for("OpenAIService"),
-    },
-}
+  Controllers: {
+    webHooks: Symbol.for("WebhookController"),
+  },
+  Services: {
+    GitHubService: Symbol.for("GitHubService"),
+    OpenAIService: Symbol.for("OpenAIService"),
+  },
+};

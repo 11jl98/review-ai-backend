@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import "dotenv";
+import "dotenv/config";
 import { InversifyExpressServer } from "inversify-express-utils";
-import { container } from "../container/container.js";
 import express from "express";
 import { AppInterface } from "./interfaces/app.interface.js";
+import { container } from "../infra/ioc/container.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
@@ -18,6 +18,8 @@ export class App implements AppInterface {
 
   public start(): void {
     const app = this.server.build();
-    app.listen(3000, () => console.log("🚀 Server running on port 3000"));
+    app.listen(3000, () =>
+      console.log("🚀 Server running on port 3000" + process.env.OPENAI_API_KEY)
+    );
   }
 }

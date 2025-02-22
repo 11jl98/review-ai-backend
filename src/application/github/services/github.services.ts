@@ -1,15 +1,17 @@
 import "dotenv/config";
 import { inject, injectable } from "inversify";
 import { Octokit } from "@octokit/rest";
-import axios from "axios";
 import { GitHubServiceInterface } from "./interfaces/github.service.interface.js";
-import { OpenAIService } from "../../openai/services/openAi.service.js";
+import { OpenAIService } from "../../openai/services/openai.service.js";
+import { TYPES } from "src/infra/ioc/types.js";
 
 @injectable()
 export class GitHubService implements GitHubServiceInterface {
   private octokit: Octokit;
 
-  constructor(@inject(OpenAIService) private openAIService: OpenAIService) {
+  constructor(
+    @inject(TYPES.Services.OpenAIService) private openAIService: OpenAIService
+  ) {
     this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   }
 

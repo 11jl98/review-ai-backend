@@ -2,20 +2,23 @@ import { Request, Response } from "express";
 import { controller, httpPost, requestBody } from "inversify-express-utils";
 import { inject } from "inversify";
 import { GitHubService } from "../../../application/github/services/github.services.js";
+import { TYPES } from "src/infra/ioc/types.js";
 
 @controller("/webhook")
 export class WebhookController {
-  constructor(@inject(GitHubService) private githubService: GitHubService) {}
+  constructor(
+    @inject(TYPES.Services.GitHubService) private githubService: GitHubService
+  ) {}
 
   @httpPost("/")
-  public async handle(
-    @requestBody() body: any,
-    req: Request,
-    res: Response
-  ) {
+  public async handle(req: Request, res: Response) {
     const { action, pull_request, repository } = req.body;
 
-    if (action !== "opened" && action !== "synchronize" && action !== "reopened") {
+    if (
+      action !== "opened" &&
+      action !== "synchronize" &&
+      action !== "reopened"
+    ) {
       return res.status(200).send("Ignoring event");
     }
 
