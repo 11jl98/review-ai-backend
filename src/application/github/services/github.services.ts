@@ -2,17 +2,18 @@ import "dotenv/config";
 import { inject, injectable } from "inversify";
 import { Octokit } from "@octokit/rest";
 import axios from "axios";
-import { OpenAIService } from "../../openAi/services/openAi.service.js";
+import { GitHubServiceInterface } from "./interfaces/github.service.interface.js";
+import { OpenAIService } from "../../openai/services/openAi.service.js";
 
 @injectable()
-export class GitHubService {
+export class GitHubService implements GitHubServiceInterface {
   private octokit: Octokit;
 
   constructor(@inject(OpenAIService) private openAIService: OpenAIService) {
     this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   }
 
-  async processPullRequest(
+  public async processPullRequest(
     owner: string,
     repo: string,
     pullNumber: number
@@ -55,19 +56,19 @@ export class GitHubService {
         return "No code changes detected.";
       }
 
-      return await this.openAIService.analyzeCode(codeChanges);
+      return await this.openAIService.processFileToReview(codeChanges);
     } catch (error: any) {
       console.error("❌ Erro ao processar PR:", error);
       return `Não foi possível processar o PR`;
     }
   }
 
-  async commentOnPR(
+  public async commentOnPR(
     owner: string,
     repo: string,
     pullNumber: number,
     comment: string
-  ) {
+  ): Promise<void> {
     await this.octokit.issues.createComment({
       owner,
       repo,

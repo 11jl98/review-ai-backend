@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { App } from "./infra/bootstrap/server-build.js";
+import { App } from "./infra/bootstrap/app.js";
 
 const app = new App();
 app.start();

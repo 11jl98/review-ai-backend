@@ -1,8 +1,9 @@
 import { injectable } from "inversify";
 import OpenAI from "openai";
+import { OpenAIServiceInterface } from "./interfaces/apoenai.service.interface";
 
 @injectable()
-export class OpenAIService {
+export class OpenAIService implements OpenAIServiceInterface {
   private openai: OpenAI;
 
   constructor() {
@@ -11,7 +12,7 @@ export class OpenAIService {
     });
   }
 
-  async analyzeCode(code: string): Promise<string> {
+  async processFileToReview(code: string): Promise<string> {
     try {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o-mini",

@@ -3,7 +3,9 @@ import "dotenv";
 import { InversifyExpressServer } from "inversify-express-utils";
 import { container } from "../container/container.js";
 import express from "express";
-export class App {
+import { AppInterface } from "./interfaces/app.interface.js";
+
+export class App implements AppInterface {
   private server: InversifyExpressServer;
 
   constructor() {
