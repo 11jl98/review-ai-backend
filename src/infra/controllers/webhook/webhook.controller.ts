@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import { controller, httpPost, requestBody } from "inversify-express-utils";
 import { inject } from "inversify";
-import { GitHubService } from "../../../application/github/services/github.services.js";
 import { TYPES } from "src/infra/ioc/types.js";
+import { Queue } from "src/infra/queue/queue.js";
+import { EVENTS } from "src/infra/queue/events.js";
 
 @controller("/webhook")
 export class WebhookController {
-  constructor(
-    @inject(TYPES.Services.GitHubService) private githubService: GitHubService
-  ) {}
+  constructor(@inject(TYPES.Queue) private queue: Queue) {}
 
   @httpPost("/")
   public async handle(req: Request, res: Response) {
@@ -23,18 +22,16 @@ export class WebhookController {
     }
 
     try {
-      const reviewComment = await this.githubService.processPullRequest(
-        repository.owner.login,
-        repository.name,
-        pull_request.number
-      );
+      const eventData = {
+        owner: repository.owner.login,
+        repo: repository.name,
+        pullNumber: pull_request.number,
+      };
 
-      await this.githubService.commentOnPR(
-        repository.owner.login,
-        repository.name,
-        pull_request.number,
-        reviewComment
-      );
+      await this.queue.publish(EVENTS.RECEIVE_PR, eventData);
+
+      console.log(`📤 PR #${pull_request.number} enviado para a fila!`);
+      res.status(200).send("✅ PR adicionado à fila.");
 
       res.status(200).send("Review added");
     } catch (error) {

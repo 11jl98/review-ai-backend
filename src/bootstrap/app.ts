@@ -7,15 +7,21 @@ import { container } from "../infra/ioc/container.js";
 import { env } from "../infra/env/index.js";
 import { Queue } from "../infra/queue/queue.js";
 import { TYPES } from "../infra/ioc/types.js";
-import { QueueController } from "src/infra/controllers/queue.controller.js";
+import { QueueConsumer } from "src/infra/queue/queue.consumer.js";
+import { EVENTS } from "src/infra/queue/events.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
 
   public async initialize(): Promise<void> {
-    this.serverSetup();
-    await this.queueSetup();
-    this.listen();
+    try {
+      this.serverSetup();
+      await this.queueConnect(); // ✅ Garante conexão antes de iniciar o consumidor
+      await this.queueInit();
+      this.listen();
+    } catch (error) {
+      console.error("❌ Erro ao inicializar a aplicação:", error);
+    }
   }
 
   private serverSetup(): void {
@@ -37,8 +43,27 @@ export class App implements AppInterface {
     );
   }
 
-  private async queueSetup(): Promise<void> {
-    const queue = container.get<Queue>(TYPES.Queue);
-    await queue.connect();
+  private async queueConnect(): Promise<void> {
+    try {
+      console.log("🔌 Conectando ao RabbitMQ...");
+      const queue = container.get<Queue>(TYPES.Queue);
+      await queue.connect();
+      console.log("✅ Conexão com RabbitMQ estabelecida.");
+      queue.publish(EVENTS.LOG, { message: "Server started" });
+    } catch (error) {
+      console.error("❌ Erro ao conectar ao RabbitMQ:", error);
+      throw error;
+    }
+  }
+
+  private async queueInit(): Promise<void> {
+    try {
+      console.log("🎧 Iniciando consumidor de filas...");
+      const consumer = container.get<QueueConsumer>(QueueConsumer);
+      await consumer.start();
+      console.log("✅ Consumidor de filas iniciado com sucesso.");
+    } catch (error) {
+      console.error("❌ Erro ao iniciar consumidores:", error);
+    }
   }
 }
