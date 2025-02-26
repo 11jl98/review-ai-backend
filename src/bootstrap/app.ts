@@ -7,11 +7,17 @@ import { container } from "../infra/ioc/container.js";
 import { env } from "../infra/env/index.js";
 import { Queue } from "../infra/queue/queue.js";
 import { TYPES } from "../infra/ioc/types.js";
-import { QueueConsumer } from "src/infra/queue/queue.consumer.js";
-import { EVENTS } from "src/infra/queue/events.js";
+import { QueueConsumer } from "../infra/queue/queue.consumer.js";
+import { EVENTS } from "../infra/queue/events.js";
+import { inject } from "inversify";
+import { Logger } from "../infra/logger/logger.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
+  private logger: Logger;
+  constructor() {
+    this.logger = container.get<Logger>(TYPES.logger);
+  }
 
   public async initialize(): Promise<void> {
     try {
@@ -20,7 +26,7 @@ export class App implements AppInterface {
       await this.queueInit();
       this.listen();
     } catch (error) {
-      console.error("❌ Erro ao inicializar a aplicação:", error);
+      this.logger.error(`❌ Erro ao inicializar a aplicação: ${error}`);
     }
   }
 
@@ -39,31 +45,31 @@ export class App implements AppInterface {
         port: env.PORT,
         host: env.HOST,
       },
-      () => console.log(`🚀 Server running on port ${env.PORT}`)
+      () => this.logger.info(`🚀 Server running on port ${env.PORT}`)
     );
   }
 
   private async queueConnect(): Promise<void> {
     try {
-      console.log("🔌 Conectando ao RabbitMQ...");
+      this.logger.info("🔌 Conectando ao RabbitMQ...");
       const queue = container.get<Queue>(TYPES.Queue);
       await queue.connect();
-      console.log("✅ Conexão com RabbitMQ estabelecida.");
+      this.logger.info("✅ Conexão com RabbitMQ estabelecida.");
       queue.publish(EVENTS.LOG, { message: "Server started" });
     } catch (error) {
-      console.error("❌ Erro ao conectar ao RabbitMQ:", error);
+      this.logger.error(`❌ Erro ao conectar ao RabbitMQ: ${error}`);
       throw error;
     }
   }
 
   private async queueInit(): Promise<void> {
     try {
-      console.log("🎧 Iniciando consumidor de filas...");
+      this.logger.info("🎧 Iniciando consumidor de filas...");
       const consumer = container.get<QueueConsumer>(QueueConsumer);
       await consumer.start();
-      console.log("✅ Consumidor de filas iniciado com sucesso.");
+      this.logger.info("✅ Consumidor de filas iniciado com sucesso.");
     } catch (error) {
-      console.error("❌ Erro ao iniciar consumidores:", error);
+      this.logger.error(`❌ Erro ao iniciar consumidores: ${error}`);
     }
   }
 }

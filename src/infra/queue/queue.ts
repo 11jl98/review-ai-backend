@@ -1,12 +1,16 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import amqp from "amqplib";
 import { QueueInterface } from "./interfaces/queue.interface.js";
 import { env } from "../env/index.js";
+import { Logger } from "../logger/logger.js";
+import { TYPES } from "../ioc/types.js";
 
 @injectable()
 export class Queue implements QueueInterface {
   private connection: amqp.Connection | null = null;
   private _channel: amqp.Channel | null = null;
+
+  constructor(@inject(TYPES.logger) private logger: Logger) {}
 
   public async connect(): Promise<void> {
     this.connection = await amqp.connect(env.RABBITMQ_URL);
@@ -21,7 +25,7 @@ export class Queue implements QueueInterface {
     const channel = await this.channel();
     await channel.assertExchange(exchange, "direct", { durable: true });
     const buffer = Buffer.from(JSON.stringify(data));
-    console.log({ exchange });
+    this.logger.info(exchange);
     channel.publish(exchange, "", buffer);
   }
 

@@ -5,13 +5,15 @@ import { GitHubServiceInterface } from "./interfaces/github.service.interface.js
 import { OpenAIService } from "../../openai/services/openai.service.js";
 import { TYPES } from "src/infra/ioc/types.js";
 import { env } from "../../../infra/env/index.js";
+import { Logger } from "../../../infra/logger/logger.js";
 
 @injectable()
 export class GitHubService implements GitHubServiceInterface {
   private octokit: Octokit;
 
   constructor(
-    @inject(TYPES.Services.OpenAIService) private openAIService: OpenAIService
+    @inject(TYPES.Services.OpenAIService) private openAIService: OpenAIService,
+    @inject(TYPES.logger) private logger: Logger
   ) {
     this.octokit = new Octokit({ auth: env.GITHUB_TOKEN });
   }
@@ -61,7 +63,7 @@ export class GitHubService implements GitHubServiceInterface {
 
       return await this.openAIService.processFileToReview(codeChanges);
     } catch (error: any) {
-      console.error("❌ Erro ao processar PR:", error);
+      this.logger.error(`❌ Erro ao processar PR: ${error}`);
       return `Não foi possível processar o PR`;
     }
   }

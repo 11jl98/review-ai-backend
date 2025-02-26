@@ -1,13 +1,15 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import OpenAI from "openai";
 import { OpenAIServiceInterface } from "./interfaces/apoenai.service.interface.js";
 import { env } from "../../../infra/env/index.js";
+import { TYPES } from "../../../infra/ioc/types.js";
+import { Logger } from "../../../infra/logger/logger.js";
 
 @injectable()
 export class OpenAIService implements OpenAIServiceInterface {
   private openai: OpenAI;
 
-  constructor() {
+  constructor(@inject(TYPES.logger) private logger: Logger) {
     this.openai = new OpenAI({
       apiKey: env.OPENAI_API_KEY,
     });
@@ -29,7 +31,7 @@ export class OpenAIService implements OpenAIServiceInterface {
 
       return response.choices[0]?.message?.content || "No response from AI";
     } catch (error: any) {
-      console.error("❌ Erro ao chamar OpenAI:", error);
+      this.logger.error(`❌ Erro ao chamar OpenAI: ${error}`);
       return `Não foi possível processar o PR`;
     }
   }

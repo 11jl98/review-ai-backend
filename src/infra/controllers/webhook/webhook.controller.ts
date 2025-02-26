@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import { controller, httpPost, requestBody } from "inversify-express-utils";
 import { inject } from "inversify";
-import { TYPES } from "src/infra/ioc/types.js";
-import { Queue } from "src/infra/queue/queue.js";
-import { EVENTS } from "src/infra/queue/events.js";
+import { TYPES } from "../../ioc/types.js";
+import { Queue } from "../../queue/queue.js";
+import { EVENTS } from "../../queue/events.js";
+import { Logger } from "../../logger/logger.js";
 
 @controller("/webhook")
 export class WebhookController {
-  constructor(@inject(TYPES.Queue) private queue: Queue) {}
+  constructor(
+    @inject(TYPES.Queue) private queue: Queue,
+    @inject(TYPES.logger) private logger: Logger
+  ) {}
 
   @httpPost("/")
   public async handle(req: Request, res: Response) {
@@ -30,12 +34,10 @@ export class WebhookController {
 
       await this.queue.publish(EVENTS.RECEIVE_PR, eventData);
 
-      console.log(`📤 PR #${pull_request.number} enviado para a fila!`);
+      this.logger.info(`📤 PR #${pull_request.number} enviado para a fila!`);
       res.status(200).send("✅ PR adicionado à fila.");
-
-      res.status(200).send("Review added");
     } catch (error) {
-      console.error("Error processing PR:", error);
+      this.logger.error(`Error processing PR: ${error}`);
       res.status(500).send("Internal Server Error");
     }
   }

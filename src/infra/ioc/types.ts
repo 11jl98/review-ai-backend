@@ -10,4 +10,5 @@ export const TYPES = {
   },
   Queue: Symbol.for("Queue"),
   QueueConsumer: Symbol.for("QueueConsumer"),
+  logger: Symbol.for("Logger"),
 };
