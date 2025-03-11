@@ -1,27 +1,51 @@
 import { injectable } from "inversify";
 import winston from "winston";
+import { LoggerInterface } from "./interfaces/logger.interface.js";
 
 @injectable()
-export class Logger {
+export class Logger implements LoggerInterface {
   private logger: winston.Logger;
 
   constructor() {
-    this.logger = winston.createLogger({
+    this.logger = this.createLogger();
+  }
+
+  private createLogger(): winston.Logger {
+    return winston.createLogger({
       level: "info",
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.printf(({ timestamp, level, message }) => {
-          return `${timestamp} [${level.toUpperCase()}]: ${message}`;
-        })
-      ),
+      format: this.createFormat(),
       transports: [
         new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          ),
+          format: this.createConsoleFormat(),
         }),
       ],
+    });
+  }
+
+  private createFormat(): winston.Logform.Format {
+    return winston.format.combine(
+      winston.format.timestamp({
+        format: this.formatTimestamp(),
+      }),
+      winston.format.printf(({ timestamp, level, message }) => {
+        return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+      }),
+      winston.format.prettyPrint(),
+      winston.format.json()
+    );
+  }
+
+  private createConsoleFormat(): winston.Logform.Format {
+    return winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    );
+  }
+
+  private formatTimestamp(): string {
+    return new Date().toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour12: false,
     });
   }
 

@@ -4,7 +4,6 @@
     "module": "node16",
     "lib": ["ES2023"],
     "moduleResolution": "node16",
-    "types": ["reflect-metadata"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "emitDeclarationOnly": false,
@@ -18,7 +17,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "typeRoots": ["./src/@types", "node_modules/@types"]
   },
   "exclude": ["node_modules", "tmp"],
   "include": ["src/**/*", "tests/**/*", "**/*.d.ts"]
