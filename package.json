@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/main.ts",
-    "queue": "npx tsx ./src/infra/queue/queue-setup.ts"
+    "queue": "npx tsx src/infra/queue/queue-setup.ts"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +33,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/reflect-metadata": "^0.1.0",
-    "tsx": "^4.19.3"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.13.0"
   }
 }

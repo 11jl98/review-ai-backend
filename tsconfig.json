@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "node16",
+    "module": "CommonJS",
     "lib": ["ES2023"],
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "types": ["reflect-metadata"],
     "emitDeclarationOnly": false,
     "outDir": "./dist",
     "declaration": true,
@@ -17,8 +18,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "typeRoots": ["./src/@types", "node_modules/@types"]
+    "baseUrl": "."
   },
   "exclude": ["node_modules", "tmp"],
   "include": ["src/**/*", "tests/**/*", "**/*.d.ts"]

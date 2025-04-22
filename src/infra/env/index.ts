@@ -11,8 +11,8 @@ const envSchema = z.object({
   PORT: z.coerce.number(),
   HOST: z.string().default("0.0.0.0"),
   GITHUB_TOKEN: z.string(),
-  OPENAI_API_KEY: z.string(),
   RABBITMQ_URL: z.string(),
+  OLLAMA_URL: z.string(),
 });
 
 const _env = envSchema.safeParse(envObject);

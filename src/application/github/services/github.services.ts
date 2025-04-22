@@ -2,18 +2,20 @@ import "dotenv/config";
 import { inject, injectable } from "inversify";
 import { Octokit } from "@octokit/rest";
 import { GitHubServiceInterface } from "./interfaces/github.service.interface.js";
-import { OpenAIService } from "../../openai/services/openai.service.js";
+import { AiService } from "../../ai/services/ai.service.js";
 import { TYPES } from "src/infra/ioc/types.js";
 import { env } from "../../../infra/env/index.js";
 import { Logger } from "../../../infra/logger/logger.js";
+import { LoggerInterface } from "src/infra/logger/interfaces/logger.interface.js";
+import { AiServiceInterface } from "src/application/ai/services/interfaces/ai.service.interface.js";
 
 @injectable()
 export class GitHubService implements GitHubServiceInterface {
   private octokit: Octokit;
 
   constructor(
-    @inject(TYPES.Services.OpenAIService) private openAIService: OpenAIService,
-    @inject(TYPES.logger) private logger: Logger
+    @inject(TYPES.Services.aiService) private aiService: AiServiceInterface,
+    @inject(TYPES.logger) private logger: LoggerInterface
   ) {
     this.octokit = new Octokit({ auth: env.GITHUB_TOKEN });
   }
@@ -49,9 +51,8 @@ export class GitHubService implements GitHubServiceInterface {
               codeChanges += `\nFile: ${file.filename}\n${decodedContent}\n`;
             }
           } catch (contentError: any) {
-            console.warn(
-              `⚠️ Erro ao buscar conteúdo do arquivo ${file.filename}:`,
-              contentError.message
+            this.logger.warn(
+              `⚠️ Erro ao buscar conteúdo do arquivo ${file.filename}: ${contentError.message}`
             );
           }
         }
@@ -61,7 +62,7 @@ export class GitHubService implements GitHubServiceInterface {
         return "No code changes detected.";
       }
 
-      return await this.openAIService.processFileToReview(codeChanges);
+      return await this.aiService.processFileToReview(codeChanges);
     } catch (error: any) {
       this.logger.error(`❌ Erro ao processar PR: ${error}`);
       return `Não foi possível processar o PR`;

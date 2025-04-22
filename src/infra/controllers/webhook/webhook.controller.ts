@@ -16,12 +16,20 @@ export class WebhookController {
   @httpPost("/")
   public async handle(req: Request, res: Response) {
     const { action, pull_request, repository } = req.body;
+    const { correlation_id } = req;
+
+    this.logger.info(
+      `[${WebhookController.name}] - requisição feita - correlationId: ${correlation_id}`
+    );
 
     if (
       action !== "opened" &&
       action !== "synchronize" &&
       action !== "reopened"
     ) {
+      this.logger.info(
+        `[${WebhookController.name}] - evento ignorado: ${correlation_id} `
+      );
       return res.status(200).send("Ignoring event");
     }
 
@@ -34,10 +42,14 @@ export class WebhookController {
 
       await this.queue.publish(EVENTS.RECEIVE_PR, eventData);
 
-      this.logger.info(`📤 PR #${pull_request.number} enviado para a fila!`);
+      this.logger.info(
+        `[${WebhookController.name}] 📤 PR #${pull_request.number} enviado para a fila! - correlationId: ${correlation_id}`
+      );
       res.status(200).send("✅ PR adicionado à fila.");
     } catch (error) {
-      this.logger.error(`Error processing PR: ${error}`);
+      this.logger.error(
+        `Erro em processar PR: ${error} - correlationId: ${correlation_id}`
+      );
       res.status(500).send("Internal Server Error");
     }
   }
