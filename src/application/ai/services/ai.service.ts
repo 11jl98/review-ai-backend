@@ -13,12 +13,16 @@ export class AiService implements AiServiceInterface {
 
   async processFileToReview(code: string): Promise<string> {
     try {
-      this.logger.info(`Processando arquivo e enviando para AI `);
+      this.logger.info(
+        `[${AiService.name}] Processando arquivo e enviando para AI `
+      );
       const response = await this.aiProvider.generate(code);
 
       return response;
     } catch (error: any) {
-      this.logger.error(`❌ Erro ao chamar OpenAI: ${error}`);
+      this.logger.error(
+        `❌ [${AiService.name}] Erro ao chamar OpenAI: ${error}`
+      );
       return `Não foi possível processar o PR`;
     }
   }

@@ -2,10 +2,8 @@ import "dotenv/config";
 import { inject, injectable } from "inversify";
 import { Octokit } from "@octokit/rest";
 import { GitHubServiceInterface } from "./interfaces/github.service.interface.js";
-import { AiService } from "../../ai/services/ai.service.js";
 import { TYPES } from "src/infra/ioc/types.js";
 import { env } from "../../../infra/env/index.js";
-import { Logger } from "../../../infra/logger/logger.js";
 import { LoggerInterface } from "src/infra/logger/interfaces/logger.interface.js";
 import { AiServiceInterface } from "src/application/ai/services/interfaces/ai.service.interface.js";
 
@@ -26,6 +24,9 @@ export class GitHubService implements GitHubServiceInterface {
     pullNumber: number
   ): Promise<string> {
     try {
+      this.logger.info(
+        `[${GitHubService.name}] processando arquivos do PR: ${pullNumber}`
+      );
       const files = await this.octokit.pulls.listFiles({
         owner,
         repo,
@@ -52,7 +53,7 @@ export class GitHubService implements GitHubServiceInterface {
             }
           } catch (contentError: any) {
             this.logger.warn(
-              `⚠️ Erro ao buscar conteúdo do arquivo ${file.filename}: ${contentError.message}`
+              `⚠️[${GitHubService.name}] Erro ao buscar conteúdo do arquivo ${file.filename}: ${contentError.message}`
             );
           }
         }
