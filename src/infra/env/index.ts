@@ -13,6 +13,9 @@ const envSchema = z.object({
   GITHUB_TOKEN: z.string(),
   RABBITMQ_URL: z.string(),
   OLLAMA_URL: z.string(),
+  GITHUB_APPS_KEY: z.string(),
+  GITHUB_APP_INSTALLATION_ID: z.coerce.number(),
+  GITHUB_APP_ID: z.string()
 });
 
 const _env = envSchema.safeParse(envObject);

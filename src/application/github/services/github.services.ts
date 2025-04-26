@@ -6,6 +6,7 @@ import { TYPES } from "src/infra/ioc/types.js";
 import { env } from "../../../infra/env/index.js";
 import { LoggerInterface } from "src/infra/logger/interfaces/logger.interface.js";
 import { AiServiceInterface } from "src/application/ai/services/interfaces/ai.service.interface.js";
+import { createAppAuth } from "@octokit/auth-app";
 
 @injectable()
 export class GitHubService implements GitHubServiceInterface {
@@ -14,8 +15,22 @@ export class GitHubService implements GitHubServiceInterface {
   constructor(
     @inject(TYPES.Services.aiService) private aiService: AiServiceInterface,
     @inject(TYPES.logger) private logger: LoggerInterface
-  ) {
-    this.octokit = new Octokit({ auth: env.GITHUB_TOKEN });
+  ) {}
+
+  private async authenticateIfNeeded(): Promise<void> {
+    if (this.octokit) {
+      return;
+    }
+
+    const auth = createAppAuth({
+      appId: env.GITHUB_APP_ID,
+      privateKey: env.GITHUB_APPS_KEY,
+      installationId: env.GITHUB_APP_INSTALLATION_ID,
+    });
+
+    const { token } = await auth({ type: "installation" });
+
+    this.octokit = new Octokit({ auth: token });
   }
 
   public async processPullRequest(
@@ -23,6 +38,8 @@ export class GitHubService implements GitHubServiceInterface {
     repo: string,
     pullNumber: number
   ): Promise<string> {
+    await this.authenticateIfNeeded();
+
     try {
       this.logger.info(
         `[${GitHubService.name}] processando arquivos do PR: ${pullNumber}`
@@ -37,7 +54,7 @@ export class GitHubService implements GitHubServiceInterface {
       for (const file of files.data) {
         if (file.filename.endsWith(".js") || file.filename.endsWith(".ts")) {
           try {
-            const contentResponse = await this.octokit.repos.getContent({
+            const contentResponse = await this.octokit!.repos.getContent({
               owner,
               repo,
               path: file.filename,
@@ -60,7 +77,7 @@ export class GitHubService implements GitHubServiceInterface {
       }
 
       if (!codeChanges) {
-        return "No code changes detected.";
+        return "Alterações não detectadas.";
       }
 
       return await this.aiService.processFileToReview(codeChanges);
@@ -76,6 +93,8 @@ export class GitHubService implements GitHubServiceInterface {
     pullNumber: number,
     comment: string
   ): Promise<void> {
+    await this.authenticateIfNeeded();
+
     await this.octokit.issues.createComment({
       owner,
       repo,
