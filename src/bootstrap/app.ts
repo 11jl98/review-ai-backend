@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import "dotenv/config";
 import { InversifyExpressServer } from "inversify-express-utils";
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { AppInterface } from "./interfaces/app.interface.js";
 import { container } from "../infra/ioc/container.js";
 import { env } from "../infra/env/index.js";
@@ -10,18 +10,18 @@ import { TYPES } from "../infra/ioc/types.js";
 import { QueueConsumer } from "../infra/queue/queue.consumer.js";
 import { EVENTS } from "../infra/queue/events.js";
 import { Logger } from "../infra/logger/logger.js";
-import { CorrelationIdMiddleware } from "src/infra/middlewares/correlation/correlation-middleware.js";
 import { LoggerInterface } from "src/infra/logger/interfaces/logger.interface.js";
-import { MiddlewareInterface } from "src/infra/middlewares/correlation/interfaces/middleware.interface.js";
+import { MiddlewareInterface } from "src/infra/middlewares/interfaces/middleware.interface.js";
+import { ValidateEventsMiddleware } from "src/infra/middlewares/validate-events/validate-event.middleware.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
   private logger: LoggerInterface;
-  private correlationMiddleware: MiddlewareInterface;
+  private validateEventsMiddleware: MiddlewareInterface;
   constructor() {
     this.logger = container.get<Logger>(TYPES.logger);
-    this.correlationMiddleware = container.get<CorrelationIdMiddleware>(
-      TYPES.middlewares.correlation
+    this.validateEventsMiddleware = container.get<ValidateEventsMiddleware>(
+      TYPES.middlewares.ValidateEventsMiddleware
     );
   }
 
@@ -47,7 +47,7 @@ export class App implements AppInterface {
           res: express.Response,
           next: express.NextFunction
         ) => {
-          this.correlationMiddleware.use(req, res, next);
+          this.validateEventsMiddleware.use(req, res, next);
         }
       );
     });

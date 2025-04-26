@@ -11,7 +11,7 @@ export const TYPES = {
     OpenAi: Symbol.for("OpenAiProvider"),
   },
   middlewares: {
-    correlation: Symbol.for("CorrelationIdMiddleware"),
+    ValidateEventsMiddleware: Symbol.for("ValidateEventsMiddleware"),
   },
   Queue: Symbol.for("Queue"),
   QueueConsumer: Symbol.for("QueueConsumer"),
