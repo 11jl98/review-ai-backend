@@ -13,22 +13,27 @@ import { Logger } from "../infra/logger/logger.js";
 import { LoggerInterface } from "src/infra/logger/interfaces/logger.interface.js";
 import { MiddlewareInterface } from "src/infra/middlewares/interfaces/middleware.interface.js";
 import { ValidateEventsMiddleware } from "src/infra/middlewares/validate-events/validate-event.middleware.js";
+import { VerifySignatureMiddleware } from "src/infra/middlewares/signature-validator/signature-validator.middleware.js";
 
 export class App implements AppInterface {
   private server: InversifyExpressServer;
   private logger: LoggerInterface;
   private validateEventsMiddleware: MiddlewareInterface;
+  private verifySignatureMiddleware: MiddlewareInterface;
   constructor() {
     this.logger = container.get<Logger>(TYPES.logger);
     this.validateEventsMiddleware = container.get<ValidateEventsMiddleware>(
       TYPES.middlewares.ValidateEventsMiddleware
+    );
+    this.verifySignatureMiddleware = container.get<VerifySignatureMiddleware>(
+      TYPES.middlewares.VerifySignatureMiddleware
     );
   }
 
   public async initialize(): Promise<void> {
     try {
       this.serverSetup();
-      await this.queueConnect(); // ✅ Garante conexão antes de iniciar o consumidor
+      await this.queueConnect();
       await this.queueInit();
       this.listen();
     } catch (error) {
@@ -39,18 +44,31 @@ export class App implements AppInterface {
   private serverSetup(): void {
     this.server = new InversifyExpressServer(container);
     this.server.setConfig((app) => {
-      app.use(express.json());
-      app.use(express.urlencoded({ extended: true }));
-      app.use(
-        (
-          req: express.Request,
-          res: express.Response,
-          next: express.NextFunction
-        ) => {
-          this.validateEventsMiddleware.use(req, res, next);
-        }
-      );
+      this.setMiddleware(app);
     });
+  }
+
+  private setMiddleware(app: express.Application) {
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
+        this.validateEventsMiddleware.use(req, res, next);
+      }
+    );
+    app.use(
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
+        this.verifySignatureMiddleware.use(req, res, next);
+      }
+    );
   }
 
   private listen(): void {

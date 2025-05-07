@@ -12,6 +12,7 @@ export const TYPES = {
   },
   middlewares: {
     ValidateEventsMiddleware: Symbol.for("ValidateEventsMiddleware"),
+    VerifySignatureMiddleware: Symbol.for("VerifySignatureMiddleware")
   },
   Queue: Symbol.for("Queue"),
   QueueConsumer: Symbol.for("QueueConsumer"),
