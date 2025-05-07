@@ -21,12 +21,12 @@ export class App implements AppInterface {
   private validateEventsMiddleware: MiddlewareInterface;
   private verifySignatureMiddleware: MiddlewareInterface;
   constructor() {
-    this.logger = container.get<Logger>(TYPES.logger);
+    this.logger = container.get<Logger>(TYPES.Logger);
     this.validateEventsMiddleware = container.get<ValidateEventsMiddleware>(
-      TYPES.middlewares.ValidateEventsMiddleware
+      TYPES.Middlewares.ValidateEventsMiddleware
     );
     this.verifySignatureMiddleware = container.get<VerifySignatureMiddleware>(
-      TYPES.middlewares.VerifySignatureMiddleware
+      TYPES.Middlewares.VerifySignatureMiddleware
     );
   }
 

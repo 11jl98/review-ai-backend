@@ -10,7 +10,7 @@ export class Queue implements QueueInterface {
   private connection: amqp.Connection | null = null;
   private _channel: amqp.Channel | null = null;
 
-  constructor(@inject(TYPES.logger) private logger: Logger) {}
+  constructor(@inject(TYPES.Logger) private logger: Logger) {}
 
   public async connect(): Promise<void> {
     this.connection = await amqp.connect(env.RABBITMQ_URL);
