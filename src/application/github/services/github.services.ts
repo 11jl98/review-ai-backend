@@ -47,8 +47,7 @@ export class GitHubService implements GitHubServiceInterface {
         pull_number: pullNumber,
       });
       let codeChanges = "";
-      const relevantFiles = this.filteredModificateFiles(files);
-      for (const file of relevantFiles.data) {
+      for (const file of files.data) {
         if (file.filename.endsWith(".js") || file.filename.endsWith(".ts")) {
           try {
             const contentResponse = await this.octokit!.repos.getContent({
@@ -95,19 +94,5 @@ export class GitHubService implements GitHubServiceInterface {
       issue_number: pullNumber,
       body: `🤖 Code Review Bot:\n\n${comment}`,
     });
-  }
-
-  private filteredModificateFiles(files: any) {
-    const allowedStatuses = new Set([
-      "added",
-      "modified",
-      "renamed",
-      "copied",
-      "changed",
-    ]);
-    const relevantFiles = files.filter((file) =>
-      allowedStatuses.has(file.status)
-    );
-    return relevantFiles.map((file) => file.filename);
   }
 }

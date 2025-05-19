@@ -57,7 +57,7 @@ export class App implements AppInterface {
         res: express.Response,
         next: express.NextFunction
       ) => {
-        this.validateEventsMiddleware.use(req, res, next);
+        this.verifySignatureMiddleware.use(req, res, next);
       }
     );
     app.use(
@@ -66,7 +66,7 @@ export class App implements AppInterface {
         res: express.Response,
         next: express.NextFunction
       ) => {
-        this.verifySignatureMiddleware.use(req, res, next);
+        this.validateEventsMiddleware.use(req, res, next);
       }
     );
   }
