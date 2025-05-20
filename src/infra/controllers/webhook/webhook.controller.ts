@@ -10,7 +10,7 @@ import { Logger } from "../../logger/logger.js";
 export class WebhookController {
   constructor(
     @inject(TYPES.Queue) private queue: Queue,
-    @inject(TYPES.logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   @httpPost("/")

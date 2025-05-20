@@ -10,7 +10,7 @@ export class QueueConsumer {
   constructor(
     @inject(TYPES.Queue) private queue: Queue,
     @inject(TYPES.Services.GitHubService) private githubService: GitHubService,
-    @inject(TYPES.logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   public async start(): Promise<void> {
