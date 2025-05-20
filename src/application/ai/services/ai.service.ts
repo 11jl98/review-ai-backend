@@ -7,7 +7,7 @@ import { AiProviderInterface } from "../providers/interfaces/ai.provider.interfa
 @injectable()
 export class AiService implements AiServiceInterface {
   constructor(
-    @inject(TYPES.logger) private logger: LoggerInterface,
+    @inject(TYPES.Logger) private logger: LoggerInterface,
     @inject(TYPES.Providers.Ollama) private aiProvider: AiProviderInterface
   ) {}
 

@@ -11,11 +11,12 @@ export class VerifySignatureMiddleware implements MiddlewareInterface {
         res.status(400).send({ error: "Invalid request: Missing signature" });
         return;
       }
+      const stringBody = JSON.stringify(req.body); // já virou objeto
+      const rawBodyBuffer = Buffer.from(stringBody, "utf-8");
       const expectedSignature = `sha256=${crypto
         .createHmac("sha256", env.GITHUB_WEBHOOK_SECRET)
-        .update(req.body)
+        .update(rawBodyBuffer)
         .digest("hex")}`;
-
       if (
         !crypto.timingSafeEqual(
           Buffer.from(signature),
@@ -27,7 +28,7 @@ export class VerifySignatureMiddleware implements MiddlewareInterface {
       }
       next();
     } catch (error) {
-      res.status(500).send({ error: "Internal server error" });
+      res.status(500).send({ error: "Internal server error " + error });
     }
   }
 }

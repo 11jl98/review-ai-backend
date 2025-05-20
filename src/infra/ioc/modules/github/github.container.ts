@@ -5,6 +5,6 @@ import { WebhookController } from "../../../controllers/webhook/webhook.controll
 import { GitHubService } from "../../../../application/github/services/github.services.js";
 
 export const githubContainer = new ContainerModule((bind: interfaces.Bind) => {
-  bind(TYPES.Controllers.webHooks).to(WebhookController);
+  bind(TYPES.Controllers.WebHooks).to(WebhookController);
   bind(TYPES.Services.GitHubService).to(GitHubService);
 });

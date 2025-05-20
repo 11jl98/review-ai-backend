@@ -13,23 +13,20 @@ export class GitHubService implements GitHubServiceInterface {
   private octokit: Octokit;
 
   constructor(
-    @inject(TYPES.Services.aiService) private aiService: AiServiceInterface,
-    @inject(TYPES.logger) private logger: LoggerInterface
+    @inject(TYPES.Services.AiService) private aiService: AiServiceInterface,
+    @inject(TYPES.Logger) private logger: LoggerInterface
   ) {}
 
   private async authenticateIfNeeded(): Promise<void> {
     if (this.octokit) {
       return;
     }
-
     const auth = createAppAuth({
       appId: env.GITHUB_APP_ID,
       privateKey: env.GITHUB_APPS_KEY,
       installationId: env.GITHUB_APP_INSTALLATION_ID,
     });
-
     const { token } = await auth({ type: "installation" });
-
     this.octokit = new Octokit({ auth: token });
   }
 
@@ -49,7 +46,6 @@ export class GitHubService implements GitHubServiceInterface {
         repo,
         pull_number: pullNumber,
       });
-
       let codeChanges = "";
       for (const file of files.data) {
         if (file.filename.endsWith(".js") || file.filename.endsWith(".ts")) {
@@ -75,11 +71,9 @@ export class GitHubService implements GitHubServiceInterface {
           }
         }
       }
-
       if (!codeChanges) {
         return "Alterações não detectadas.";
       }
-
       return await this.aiService.processFileToReview(codeChanges);
     } catch (error: any) {
       this.logger.error(`❌ Erro ao processar PR: ${error}`);
@@ -94,7 +88,6 @@ export class GitHubService implements GitHubServiceInterface {
     comment: string
   ): Promise<void> {
     await this.authenticateIfNeeded();
-
     await this.octokit.issues.createComment({
       owner,
       repo,
