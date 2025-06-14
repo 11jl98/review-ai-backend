@@ -17,6 +17,9 @@ const envSchema = z.object({
   GITHUB_APP_INSTALLATION_ID: z.coerce.number(),
   GITHUB_APP_ID: z.string(),
   GITHUB_WEBHOOK_SECRET: z.string(),
+  NEO4J_URI: z.string().default("bolt://localhost:7687"),
+  NEO4J_USER: z.string().default("neo4j"),
+  NEO4J_PASSWORD: z.string(),
 });
 
 const _env = envSchema.safeParse(envObject);
