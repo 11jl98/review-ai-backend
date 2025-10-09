@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { controller, httpPost, requestBody } from "inversify-express-utils";
+import { controller, httpPost } from "inversify-express-utils";
 import { inject } from "inversify";
 import { TYPES } from "../../ioc/types.js";
 import { Queue } from "../../queue/queue.js";

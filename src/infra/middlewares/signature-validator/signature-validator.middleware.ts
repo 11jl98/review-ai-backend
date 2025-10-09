@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
-import { env } from "src/infra/env"; // Onde você guarda suas variáveis de ambiente
+import { env } from "src/infra/env";
 import { MiddlewareInterface } from "../interfaces/middleware.interface";
 
 export class VerifySignatureMiddleware implements MiddlewareInterface {
@@ -11,7 +11,7 @@ export class VerifySignatureMiddleware implements MiddlewareInterface {
         res.status(400).send({ error: "Invalid request: Missing signature" });
         return;
       }
-      const stringBody = JSON.stringify(req.body); // já virou objeto
+      const stringBody = JSON.stringify(req.body);
       const rawBodyBuffer = Buffer.from(stringBody, "utf-8");
       const expectedSignature = `sha256=${crypto
         .createHmac("sha256", env.GITHUB_WEBHOOK_SECRET)
